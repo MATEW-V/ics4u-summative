@@ -1,6 +1,6 @@
 import { useStoreContext } from "../context";
 import { Link } from "react-router-dom";
-import style12 from "./Cartview.module.css";
+import style12 from "./CartView.module.css";
 
 function CartView() {
   const { cart, setCart, fname } = useStoreContext();
