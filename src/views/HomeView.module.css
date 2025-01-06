@@ -1,0 +1,17 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.herocontent {
+    width: 100%;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.6)50%, rgba(0, 0, 0, 0.6)50%), url(mviebackground.jpg);
+    background-position: center;
+    background-size: cover;
+    height: 80vh;
+}
+
+.main {
+    width: 100%;
+    height: 100%;
+}

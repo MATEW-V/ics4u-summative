@@ -1,0 +1,111 @@
+* {
+    margin: 0px;
+    padding: 0px;
+}
+
+.body {
+    width: 100%;
+    height: 100vh;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.6)50%, rgba(0, 0, 0, 0.6)50%), url(mviebackground.jpg);
+}
+
+.genrecontainer {
+    position: relative;
+    justify-self: left;
+    top: 40px;
+    margin-left: 30px;
+    width: 100%;
+    max-width: 300px;
+    background-color: rgb(39, 39, 39);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.logincontainer {
+    position: relative;
+    justify-self: right;
+    bottom: 800px;
+    margin-right: 30px;
+    width: 100%;
+    max-width: 800px;
+    padding: 20px;
+    background-color: rgb(39, 39, 39);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    text-align: center;
+}
+
+.genreselect h2 {
+    font-size: 2em;
+    margin-bottom: 20px;
+    color: #c7c6c6;
+    text-align: center;
+    padding-right: 30px;
+}
+.formcontainer h2 {
+    font-size: 2em;
+    margin-bottom: 20px;
+    color: #c7c6c6;
+    text-align: center;
+}
+
+.genreselect {
+    padding-left: 30px;
+    text-align: left;
+}
+
+.genreselect label {
+    text-align: center;
+    font-size: 1em;
+    line-height: 3;
+    color: #b3b3b3;
+}
+
+.formcontainer label {
+    display: block;
+    text-align: left;
+    margin: 10px 0 5px;
+    font-size: 0.9em;
+    color: #b3b3b3;
+}
+
+.formcontainer input[type="text"],
+.formcontainer input[type="email"],
+.formcontainer input[type="password"] {
+    width: 97%;
+    padding: 10px;
+    background: #333;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 1em;
+    margin-bottom: 10px;
+}
+
+.loginbutton {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    background: rgb(26, 160, 86);
+    color: #fff;
+    font-size: 1em;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.loginbutton:hover {
+    background: #636363;
+}
+
+.registerlink {
+    margin-top: 15px;
+    font-size: 0.9em;
+    color: #b3b3b3;
+}
+
+.registerlink a {
+    color: rgb(26, 160, 86);
+}
