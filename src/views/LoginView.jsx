@@ -1,5 +1,5 @@
 import style8 from './LoginView.module.css';
-import { useState } from 'react';
+import { useState, useRef} from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStoreContext } from '../context';  
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
@@ -46,7 +46,7 @@ function LoginView() {
               type="email"
               id="email"
               name="email"
-              value={uemail}  
+              value={email}  
               onChange={(event) => setUEmail(event.target.value)} 
               required
             />
