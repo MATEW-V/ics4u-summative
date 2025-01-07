@@ -2,15 +2,17 @@ import style10 from "./RegisterView.module.css";
 import { useStoreContext } from '../context';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { auth } from "../firebase";
 
 function RegisterView() {
-  const { setEmail: setContextEmail, setFirst, setLast, setPassword: setContextPassword, setGenres } = useStoreContext();
   const [email, setEmail] = useState('');
   const [fname, setFname] = useState('');
   const [lname, setLname] = useState('');
   const [password, setPassword] = useState('');
   const [verifpass, setVerifpass] = useState('');
-  const [selectedGenres, setSelectedGenres] = useState(new Map()); // Use a Map to store genre selections
+  const { setUser } = useStoreContext();
+  const [selectedGenres, setSelectedGenres] = useState(new Map());
   const navigate = useNavigate();
 
   const availableGenres = [
@@ -36,19 +38,17 @@ function RegisterView() {
     const genreName = event.target.dataset.name;
 
     setSelectedGenres(prevSelectedGenres => {
-      const newGenres = new Map(prevSelectedGenres); 
+      const newGenres = new Map(prevSelectedGenres);
       if (newGenres.has(genreId)) {
-        newGenres.delete(genreId); 
+        newGenres.delete(genreId);
       } else {
-        newGenres.set(genreId, genreName); 
+        newGenres.set(genreId, genreName);
       }
       return newGenres;
     });
   };
-
-  function signup(event) {
+  const registerByEmail = async (event) => {
     event.preventDefault();
-
     if (password !== verifpass) {
       alert("Passwords do not match!");
       return;
@@ -58,13 +58,30 @@ function RegisterView() {
       alert("Please select at least 10 genres.");
       return;
     }
+    try {
+      const user = (await createUserWithEmailAndPassword(auth, email, password)).user;
+      await updateProfile(user, { displayName: `${firstName} ${lastName}` });
+      setUser(user);
+      setGenres(selectedGenres);
+      navigate('/movies/genre');
+    } catch (error) {
+      alert("Error creating user with email and password!");
+    }
+  };
 
-    setFirst(fname);
-    setLast(lname);
-    setContextEmail(email);
-    setContextPassword(password);
-    setGenres(selectedGenres);  
-    navigate('/movies/genre');
+  const registerByGoogle = async () => {
+    if (selectedGenres.size < 10) {
+      alert("Please select at least 10 genres.");
+      return;
+    }
+    try {
+      const user = (await signInWithPopup(auth, new GoogleAuthProvider())).user;
+      setUser(user);
+      setGenres(selectedGenres);
+      navigate('/movies/genre');
+    } catch {
+      alert("Error creating user with email and password!");
+    }
   }
 
   return (
@@ -78,8 +95,8 @@ function RegisterView() {
                 type="checkbox"
                 id={genre.id}
                 value={genre.id}
-                data-name={genre.name}  
-                checked={selectedGenres.has(genre.id)}  
+                data-name={genre.name}
+                checked={selectedGenres.has(genre.id)}
                 onChange={handleGenreChange}
               />
               <label htmlFor={genre.id}>{genre.name}</label><br />
@@ -90,7 +107,7 @@ function RegisterView() {
       <div className={style10.logincontainer}>
         <div className={style10.formcontainer}>
           <h2>Create an Account</h2>
-          <form onSubmit={signup}>
+          <form onSubmit={(e) => registerByEmail(e)}>
             <label htmlFor="text">First name</label>
             <input
               type="text"
@@ -139,6 +156,7 @@ function RegisterView() {
             <button type="submit" className={style10.loginbutton}>Sign Up</button>
           </form>
           <p className={style10.registerlink}>Already have an Account? <a href="#">Login Here</a></p>
+        <button onClick={() => registerByGoogle()} className={style10.registergbutton}>Register by Google</button>
         </div>
       </div>
     </div>
