@@ -1,4 +1,4 @@
-import { createContext, useState, useContext } from "react";
+import { createContext, useState, useContext, useEffect } from "react";
 import { Map } from 'immutable';
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase";
@@ -11,6 +11,7 @@ export const StoreProvider = ({ children }) => {
   const [password, setPassword] = useState('');
   const [cart, setCart] = useState(Map());
   const [genres, setGenres] = useState(new Map());
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
