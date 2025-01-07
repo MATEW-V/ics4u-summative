@@ -2,21 +2,36 @@ import style8 from './LoginView.module.css';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStoreContext } from '../context';  
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { auth } from '../firebase';
 
 function LoginView() {
-  const { setEmail, email, setPassword, password } = useStoreContext();  
-  const [uemail, setUEmail] = useState(''); 
+  const email = useRef('');
   const [upassword, setUPassword] = useState('');  
   const navigate = useNavigate();
+  const { setUser } = useStoreContext();
 
-  function login(event) {
+  async function loginByEmail(event) {
     event.preventDefault();
 
-    if (email == uemail && password == upassword) {
+    try {
+      const user = (await signInWithEmailAndPassword(auth, email.current.value, password)).user;
       navigate('/movies/genre');
-    } else {
-      alert("Invalid email or password!");
-      console.log(email,password,uemail,upassword);
+      setUser(user);
+    } catch (error) {
+      console.log(error);
+      alert("Error signing in!");
+    }
+  }
+
+  async function loginByGoogle() {
+    try {
+      const user = (await signInWithPopup(auth, new GoogleAuthProvider())).user;
+      navigate('/movies/genre');
+      setUser(user);
+    } catch (error) {
+      console.log(error);
+      alert("Error signing in!");
     }
   }
 
@@ -25,7 +40,7 @@ function LoginView() {
       <div className={style8.logincontainer}>
         <div className={style8.formcontainer}>
           <h2>Login to Your Account</h2>
-          <form onSubmit={login}>
+          <form onSubmit={(event) => { loginByEmail(event) }}>
             <label htmlFor="email">Email</label>
             <input
               type="email"
@@ -46,6 +61,7 @@ function LoginView() {
             />
             <button type="submit" className={style8.loginbutton}>Login</button>
           </form>
+          <button onClick={() => loginByGoogle()} type="submit" className="login-button">Login by Google</button>
           <p className={style8.registerlink}>New to ACI Theatre? <a href="#">Register now</a></p>
         </div>
       </div>
