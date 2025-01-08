@@ -66,6 +66,7 @@ function RegisterView() {
       navigate('/movies/genre');
     } catch (error) {
       alert("Error creating user with email and password!");
+      console.log(error);
     }
   };
 

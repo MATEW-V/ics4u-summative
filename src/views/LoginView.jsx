@@ -42,14 +42,7 @@ function LoginView() {
           <h2>Login to Your Account</h2>
           <form onSubmit={(event) => { loginByEmail(event) }}>
             <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={email}  
-              onChange={(event) => setUEmail(event.target.value)} 
-              required
-            />
+            <input type="email" id="email" name="email" ref={email} required />
             <label htmlFor="password">Password</label>
             <input
               type="password"
