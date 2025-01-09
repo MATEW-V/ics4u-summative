@@ -2,6 +2,8 @@ import style10 from "./RegisterView.module.css";
 import { useStoreContext } from '../context';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { doc, setDoc } from "firebase/firestore";
+import { firestore } from "../firebase";
 import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth } from "../firebase";
 
@@ -11,7 +13,7 @@ function RegisterView() {
   const [lname, setLname] = useState('');
   const [password, setPassword] = useState('');
   const [verifpass, setVerifpass] = useState('');
-  const { setUser } = useStoreContext();
+  const { setUser, genres, setGenres } = useStoreContext();
   const [selectedGenres, setSelectedGenres] = useState(new Map());
   const navigate = useNavigate();
 
@@ -32,7 +34,13 @@ function RegisterView() {
     { id: "9648", name: "Mystery" },
     { id: "878", name: "Sci-Fi" }
   ];
-
+ const fbGenres = async () => {
+      const docRef = doc(firestore, "users", user.uid);
+      await setDoc(docRef, selectedGenres.toJS());
+      const data = (await getDoc(docRef)).data();
+      const selectedGenres = Map(data);
+    }
+  
   const handleGenreChange = (event) => {
     const genreId = event.target.value;
     const genreName = event.target.dataset.name;
@@ -58,15 +66,15 @@ function RegisterView() {
       alert("Please select at least 10 genres.");
       return;
     }
+   
     try {
       const user = (await createUserWithEmailAndPassword(auth, email, password)).user;
-      await updateProfile(user, { displayName: `${firstName} ${lastName}` });
+      await updateProfile(user, { displayName: `${fname} ${lname}` });
       setUser(user);
-      setGenres(selectedGenres);
       navigate('/movies/genre');
     } catch (error) {
-      alert("Error creating user with email and password!");
       console.log(error);
+      alert("Error creating user with email and password!");
     }
   };
 
@@ -80,8 +88,9 @@ function RegisterView() {
       setUser(user);
       setGenres(selectedGenres);
       navigate('/movies/genre');
-    } catch {
-      alert("Error creating user with email and password!");
+    } catch (error){
+      alert("Error creating user with dadaemail and password!");
+      console.log(error);
     }
   }
 
@@ -163,5 +172,6 @@ function RegisterView() {
     </div>
   );
 }
+
 
 export default RegisterView;
