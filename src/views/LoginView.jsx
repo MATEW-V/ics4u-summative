@@ -32,6 +32,7 @@ function LoginView() {
     } catch (error) {
       console.log(error);
       alert("Error signing in!");
+      console.log(user);
     }
   }
 

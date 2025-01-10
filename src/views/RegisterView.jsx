@@ -34,12 +34,6 @@ function RegisterView() {
     { id: "9648", name: "Mystery" },
     { id: "878", name: "Sci-Fi" }
   ];
- const fbGenres = async () => {
-      const docRef = doc(firestore, "users", user.uid);
-      await setDoc(docRef, selectedGenres.toJS());
-      const data = (await getDoc(docRef)).data();
-      const selectedGenres = Map(data);
-    }
   
   const handleGenreChange = (event) => {
     const genreId = event.target.value;
@@ -72,9 +66,11 @@ function RegisterView() {
       await updateProfile(user, { displayName: `${fname} ${lname}` });
       setUser(user);
       navigate('/movies/genre');
+      console.log(user);
     } catch (error) {
       console.log(error);
-      alert("Error creating user with email and password!");
+      console.log(user);
+      alert("Error creating user. Make sure your password is 6+ characters.");
     }
   };
 
@@ -89,7 +85,7 @@ function RegisterView() {
       setGenres(selectedGenres);
       navigate('/movies/genre');
     } catch (error){
-      alert("Error creating user with dadaemail and password!");
+      alert("Error creating user with demail and password!");
       console.log(error);
     }
   }

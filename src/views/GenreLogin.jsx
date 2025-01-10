@@ -10,7 +10,7 @@ function GenreLogin() {
   const [movies, setMovies] = useState([]);
   const [page, setPage] = useState(1);
   const [selectedGenreId, setSelectedGenreId] = useState(28);
-  const { cart, fname, addToCart, genres } = useStoreContext();
+  const { cart, user, addToCart, genres } = useStoreContext();
 
   const cartAdd = (movie) => {
     if (cart.has(movie.id)) {
@@ -49,7 +49,7 @@ function GenreLogin() {
     <div className={style6.appcontainer}>
       <div className={style6.loginfeat}>
         <div className={style6.welcome}>
-          Welcome {fname}! We hope you find what you are looking for.
+          Welcome {user.displayName}! We hope you find what you are looking for.
         </div>
         <div className={style6.genrelist}>
           <GenreView genresList={Array.from(genres)} onGenreClick={handleGenreClick} />
