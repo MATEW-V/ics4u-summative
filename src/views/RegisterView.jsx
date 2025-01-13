@@ -66,7 +66,7 @@ function RegisterView() {
       await updateProfile(user, { displayName: `${fname} ${lname}` });
       setUser(user);
       navigate('/movies/genre');
-      const selectgenrejs = selectedGenres.toJS();
+      const selectgenrejs = Object.fromEntries(selectedGenres);
       const docRef = doc(firestore, "users", user.uid);
     await setDoc(docRef, {genres: selectgenrejs});
 
