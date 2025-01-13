@@ -16,7 +16,7 @@ function RegisterView() {
   const { setUser, genres, setGenres } = useStoreContext();
   const [selectedGenres, setSelectedGenres] = useState(new Map());
   const navigate = useNavigate();
-
+  
   const availableGenres = [
     { id: "28", name: "Action" },
     { id: "12", name: "Adventure" },
@@ -66,10 +66,17 @@ function RegisterView() {
       await updateProfile(user, { displayName: `${fname} ${lname}` });
       setUser(user);
       navigate('/movies/genre');
+      const selectgenrejs = selectedGenres.toJS();
+      const docRef = doc(firestore, "users", user.uid);
+    await setDoc(docRef, {genres: selectgenrejs});
+
+    // Code to read from Friestore
+    // const docRef = doc(firestore, "users", user.uid);
+    // const data = (await getDoc(docRef)).data();
+    // const cart = Map(data);
       console.log(user);
     } catch (error) {
       console.log(error);
-      console.log(user);
       alert("Error creating user. Make sure your password is 6+ characters.");
     }
   };
@@ -159,7 +166,7 @@ function RegisterView() {
               onChange={(e) => setVerifpass(e.target.value)}
               required
             />
-            <button type="submit" className={style10.loginbutton}>Sign Up</button>
+            <button  onClick={() => registerByEmail()}type="submit" className={style10.loginbutton}>Sign Up</button>
           </form>
           <p className={style10.registerlink}>Already have an Account? <a href="#">Login Here</a></p>
         <button onClick={() => registerByGoogle()} className={style10.registergbutton}>Register by Google</button>
