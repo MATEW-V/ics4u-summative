@@ -10,9 +10,11 @@ function MoviesView() {
   const { user, setUser } = useStoreContext();
 
   function logout() {
-    setUser(null);
     signOut(auth);
     navigate("/");
+    setUser(null);
+    console.log("wasd"+user);
+    
   }
 
   function cart() {

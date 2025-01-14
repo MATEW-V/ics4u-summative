@@ -68,7 +68,7 @@ function RegisterView() {
       navigate('/movies/genre');
       const selectgenrejs = Object.fromEntries(selectedGenres);
       const docRef = doc(firestore, "users", user.uid);
-    await setDoc(docRef, {genres: selectgenrejs});
+      await setDoc(docRef, {genres: selectgenrejs});
 
     // Code to read from Friestore
     // const docRef = doc(firestore, "users", user.uid);
@@ -77,7 +77,7 @@ function RegisterView() {
       console.log(user);
     } catch (error) {
       console.log(error);
-      alert("Error creating user. Make sure your password is 6+ characters.");
+      alert("Error creating user.");
     }
   };
 
@@ -90,6 +90,9 @@ function RegisterView() {
       const user = (await signInWithPopup(auth, new GoogleAuthProvider())).user;
       setUser(user);
       setGenres(selectedGenres);
+      const selectgenrejs = Object.fromEntries(selectedGenres);
+      const docRef = doc(firestore, "users", user.uid);
+      await setDoc(docRef, {genres: selectgenrejs});
       navigate('/movies/genre');
     } catch (error){
       alert("Error creating user with demail and password!");

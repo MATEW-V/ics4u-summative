@@ -15,12 +15,13 @@ function LoginView() {
     event.preventDefault();
 
     try {
-      const user = (await signInWithEmailAndPassword(auth, email.current.value, password)).user;
+      const user = (await signInWithEmailAndPassword(auth, email.current.value, upassword)).user;
       navigate('/movies/genre');
       setUser(user);
     } catch (error) {
       console.log(error);
       alert("Error signing in!");
+      console.log(upassword);
     }
   }
 

@@ -5,7 +5,7 @@ import { firestore } from "../firebase";
 import { doc, setDoc } from "firebase/firestore";
 
 function CartView() {
-  const { cart, setCart, fname } = useStoreContext();
+  const { cart, setCart, user } = useStoreContext();
 
   const checkout = async () => {
     const docRef = doc(firestore, "users", user.uid);
@@ -47,7 +47,7 @@ function CartView() {
             </div>
         </div>
     <div className={style12.cartview}>
-      <h1>{fname}'s Shopping Cart</h1>
+      <h1>{user.displayName}'s Shopping Cart</h1>
       <div className={style12.cartitems}>
         {
           cart.entrySeq().map(([key, value]) => {
