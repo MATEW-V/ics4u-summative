@@ -5,6 +5,8 @@ import { useStoreContext } from "../context";
 import Footer from "./components/Footer.jsx";
 import style6 from "./GenreLogin.module.css";
 import GenreView from "./components/GenreView.jsx";
+import { firestore } from "../firebase";
+import { doc, getDoc } from "firebase/firestore";
 
 function GenreLogin() {
   const [movies, setMovies] = useState([]);
@@ -19,7 +21,13 @@ function GenreLogin() {
       addToCart(movie);
     }
   };
-
+  const readGenre = async () => {
+    const docRef = doc(firestore, "users", user.uid);
+    const data = (await getDoc(docRef)).data();
+    console.log(data);
+    const readGen = new Map(data);
+    return data;
+  }
   useEffect(() => {
     const fetchMovies = async () => {
       const url = selectedGenreId
@@ -31,6 +39,7 @@ function GenreLogin() {
     };
 
     fetchMovies();
+    readGenre();
   }, [selectedGenreId]);
 
   const getMoviesByPage = async (page) => {
