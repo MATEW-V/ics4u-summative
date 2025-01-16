@@ -41,7 +41,7 @@
   }
   
   .formGroup input {
-    width: 100%;
+    width: 95%;
     padding: 10px;
     font-size: 1rem;
     border: 1px solid rgb(32, 32, 32);  /* Dark border color */
@@ -65,7 +65,36 @@
     margin-bottom: 10px;
     color: rgb(58, 58, 58);  /* Changed header text color */
   }
-  
+  .cartContainer {
+    margin-top: 30px;
+}
+
+.cartGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 20px;
+}
+
+.cartTile {
+    background-color: #f4f4f4;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.cartImage {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+}
+
+.cartTitle {
+    margin-top: 10px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
   /* Checkbox container */
   .checkboxContainer {
     display: flex;

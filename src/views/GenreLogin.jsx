@@ -12,6 +12,8 @@ function GenreLogin() {
   const [movies, setMovies] = useState([]);
   const [page, setPage] = useState(1);
   const [selectedGenreId, setSelectedGenreId] = useState(28);
+  const [userGenres, setUserGenres] = useState(new Map());
+  const [userName, setUserName] = useState(""); // State to store the user's name
   const { cart, user, addToCart, genres } = useStoreContext();
 
   const cartAdd = (movie) => {
@@ -21,13 +23,36 @@ function GenreLogin() {
       addToCart(movie);
     }
   };
+
   const readGenre = async () => {
-    const docRef = doc(firestore, "users", user.uid);
-    const data = (await getDoc(docRef)).data();
-    console.log(data);
-    const readGen = new Map(data);
-    return data;
-  }
+    try {
+      const docRef = doc(firestore, "users", user.uid);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        console.log("User data from Firestore:", data);
+        if (Array.isArray(data.genres)) {
+          setUserGenres(new Map(data.genres.map(genre => [genre.id, genre.name])));
+        } else if (data.genres instanceof Object) {
+          setUserGenres(new Map(Object.entries(data.genres)));
+        } else {
+          console.error("Invalid genre data format");
+        }
+
+        // Set the user's name based on whether they registered via email or Google
+        if (data.firstName && data.lastName) {
+          setUserName(`${data.firstName} ${data.lastName}`);
+        } else if (user.displayName) {
+          setUserName(user.displayName);
+        }
+      } else {
+        console.log("No such document!");
+      }
+    } catch (error) {
+      console.error("Error fetching user genres from Firestore: ", error);
+    }
+  };
+
   useEffect(() => {
     const fetchMovies = async () => {
       const url = selectedGenreId
@@ -39,8 +64,10 @@ function GenreLogin() {
     };
 
     fetchMovies();
-    readGenre();
-  }, [selectedGenreId]);
+    if (user && user.uid) {
+      readGenre(); 
+    }
+  }, [selectedGenreId, user]);
 
   const getMoviesByPage = async (page) => {
     const response = await axios.get(
@@ -48,7 +75,6 @@ function GenreLogin() {
     );
     setMovies(response.data.results);
   };
-
 
   const handleGenreClick = (genreId) => {
     setSelectedGenreId(genreId);
@@ -58,10 +84,10 @@ function GenreLogin() {
     <div className={style6.appcontainer}>
       <div className={style6.loginfeat}>
         <div className={style6.welcome}>
-          Welcome {user.displayName}! We hope you find what you are looking for.
+          Welcome {userName}! We hope you find what you are looking for.
         </div>
         <div className={style6.genrelist}>
-          <GenreView genresList={Array.from(genres)} onGenreClick={handleGenreClick} />
+          <GenreView genresList={userGenres.size > 0 ? userGenres : genres} onGenreClick={handleGenreClick} />
           <div className={style6.spacer}></div>
           <div className={style6.pageturner}>
             <p>

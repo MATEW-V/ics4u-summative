@@ -34,7 +34,7 @@ function RegisterView() {
     { id: "9648", name: "Mystery" },
     { id: "878", name: "Sci-Fi" }
   ];
-  
+
   const handleGenreChange = (event) => {
     const genreId = event.target.value;
     const genreName = event.target.dataset.name;
@@ -49,6 +49,7 @@ function RegisterView() {
       return newGenres;
     });
   };
+
   const registerByEmail = async (event) => {
     event.preventDefault();
     if (password !== verifpass) {
@@ -60,20 +61,25 @@ function RegisterView() {
       alert("Please select at least 10 genres.");
       return;
     }
-   
+
     try {
+      // Create user with email and password
       const user = (await createUserWithEmailAndPassword(auth, email, password)).user;
+      
+      // Update user profile with first and last name
       await updateProfile(user, { displayName: `${fname} ${lname}` });
-      setUser(user);
-      navigate('/movies/genre');
+      setUser(user);  // Set the user in context
+      navigate('/movies/genre');  // Navigate to the next page
+
+      // Store user genres and name in Firestore
       const selectgenrejs = Object.fromEntries(selectedGenres);
       const docRef = doc(firestore, "users", user.uid);
-      await setDoc(docRef, {genres: selectgenrejs});
+      await setDoc(docRef, {
+        firstName: fname,
+        lastName: lname,
+        genres: selectgenrejs
+      });
 
-    // Code to read from Friestore
-    // const docRef = doc(firestore, "users", user.uid);
-    // const data = (await getDoc(docRef)).data();
-    // const cart = Map(data);
       console.log(user);
     } catch (error) {
       console.log(error);
@@ -87,18 +93,22 @@ function RegisterView() {
       return;
     }
     try {
+      // Register user via Google Auth
       const user = (await signInWithPopup(auth, new GoogleAuthProvider())).user;
-      setUser(user);
-      setGenres(selectedGenres);
+      setUser(user);  // Set the user in context
+      setGenres(selectedGenres);  // Set genres in context
+
+      // Store genres in Firestore
       const selectgenrejs = Object.fromEntries(selectedGenres);
       const docRef = doc(firestore, "users", user.uid);
-      await setDoc(docRef, {genres: selectgenrejs});
-      navigate('/movies/genre');
+      await setDoc(docRef, { genres: selectgenrejs });
+      
+      navigate('/movies/genre');  // Navigate to the next page
     } catch (error){
-      alert("Error creating user with demail and password!");
+      alert("Error creating user with email and password!");
       console.log(error);
     }
-  }
+  };
 
   return (
     <div className={style10.body}>
@@ -120,6 +130,7 @@ function RegisterView() {
           ))}
         </div>
       </div>
+
       <div className={style10.logincontainer}>
         <div className={style10.formcontainer}>
           <h2>Create an Account</h2>
@@ -169,15 +180,16 @@ function RegisterView() {
               onChange={(e) => setVerifpass(e.target.value)}
               required
             />
-            <button  onClick={() => registerByEmail()}type="submit" className={style10.loginbutton}>Sign Up</button>
+            <button type="submit" className={style10.loginbutton}>Sign Up</button>
           </form>
+
           <p className={style10.registerlink}>Already have an Account? <a href="#">Login Here</a></p>
-        <button onClick={() => registerByGoogle()} className={style10.registergbutton}>Register by Google</button>
+          
+          <button onClick={registerByGoogle} className={style10.registergbutton}>Register by Google</button>
         </div>
       </div>
     </div>
   );
 }
-
 
 export default RegisterView;
