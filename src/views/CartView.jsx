@@ -1,9 +1,17 @@
 import { useStoreContext } from "../context";
 import { Link } from "react-router-dom";
 import style12 from "./CartView.module.css";
+import { firestore } from "../firebase";
+import { doc, setDoc } from "firebase/firestore";
 
 function CartView() {
-  const { cart, setCart, fname } = useStoreContext();
+  const { cart, setCart, user } = useStoreContext();
+
+  const checkout = async () => {
+    const docRef = doc(firestore, "users", user.uid);
+    const data = (await getDoc(docRef)).data();
+    const readCart = Map(data);
+  }
 
   return (
     <div className={style12.appcontainer}>
@@ -29,13 +37,16 @@ function CartView() {
                             <div className={style12.register}>
                                 <Link to={`/movies/genre`} className={style12.button}>Back</Link>
                             </div>
+                            <div className={style12.login}>
+                                <button onClick={() => checkout()}>Checkout</button>
+                            </div>
                         </div>
                     </li>
                 </ul>
             </div>
         </div>
     <div className={style12.cartview}>
-      <h1>{fname}'s Shopping Cart</h1>
+      <h1>{user.displayName}'s Shopping Cart</h1>
       <div className={style12.cartitems}>
         {
           cart.entrySeq().map(([key, value]) => {
