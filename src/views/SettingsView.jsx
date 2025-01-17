@@ -25,7 +25,7 @@ const availableGenres = [
 ];
 
 function SettingsView() {
-    const { email, fname, lname, genres, setFirst, setLast, setGenres, user } = useStoreContext();
+    const { fname, lname, genres, setFirst, setLast, user } = useStoreContext();
     const [newFname, setNewFname] = useState(fname);
     const [newLname, setNewLname] = useState(lname);
     const [newPassword, setNewPassword] = useState('');
@@ -59,6 +59,10 @@ function SettingsView() {
                         if (data.cart) {
                             setCart(data.cart); // Set the cart data from Firestore
                         }
+
+                        // Set first and last name from Firestore if available
+                        if (data.firstName) setNewFname(data.firstName);
+                        if (data.lastName) setNewLname(data.lastName);
                     }
                 } catch (error) {
                     console.error("Error fetching user data:", error);
@@ -107,7 +111,12 @@ function SettingsView() {
 
     // Handle save changes for genres and other settings
     const handleSaveChanges = async () => {
-        if (user.providerData[0].providerId === "password") {
+        // If the user is logged in via Google, skip updating first/last name
+        if (user.providerData[0].providerId === "google.com") {
+            setNewFname(fname); // Keep the current first name
+            setNewLname(lname); // Keep the current last name
+        } else {
+            // Only update names for users who are not authenticated via Google
             setFirst(newFname);
             setLast(newLname);
         }
@@ -119,8 +128,8 @@ function SettingsView() {
             const userRef = doc(firestore, "users", user.uid);
             await setDoc(userRef, {
                 genres: updatedGenres, // Save selected genres to Firestore
-                firstName: newFname,
-                lastName: newLname
+                firstName: newFname, // Only update if not Google Auth
+                lastName: newLname, // Only update if not Google Auth
             }, { merge: true });
             alert("Settings updated successfully!");
             navigate('/movies/genre');
@@ -131,27 +140,31 @@ function SettingsView() {
 
     return (
         <div className={style13.appcontainer}>
-            <h1>Welcome {fname} {lname}, Email: {user.email}</h1>
+            <h1>Welcome {newFname} {newLname}, Email: {user.email}</h1>
 
             <div className={style13.formContainer}>
-                <div className={style13.formGroup}>
-                    <label>Edit First Name:</label>
-                    <input
-                        type="text"
-                        value={newFname}
-                        onChange={(e) => setNewFname(e.target.value)}
-                        disabled={user.providerData[0].providerId === "google.com"} // Disable if Google Auth
-                    />
-                </div>
-                <div className={style13.formGroup}>
-                    <label>Edit Last Name:</label>
-                    <input
-                        type="text"
-                        value={newLname}
-                        onChange={(e) => setNewLname(e.target.value)}
-                        disabled={user.providerData[0].providerId === "google.com"} // Disable if Google Auth
-                    />
-                </div>
+                {/* Conditionally Render First Name and Last Name Fields */}
+                {user.providerData[0].providerId !== "google.com" && (
+                    <>
+                        <div className={style13.formGroup}>
+                            <label>Edit First Name:</label>
+                            <input
+                                type="text"
+                                value={newFname}
+                                onChange={(e) => setNewFname(e.target.value)}
+                            />
+                        </div>
+                        <div className={style13.formGroup}>
+                            <label>Edit Last Name:</label>
+                            <input
+                                type="text"
+                                value={newLname}
+                                onChange={(e) => setNewLname(e.target.value)}
+                            />
+                        </div>
+                    </>
+                )}
+
                 {user.providerData[0].providerId === "password" && (
                     <div className={style13.formGroup}>
                         <label>Edit Password:</label>

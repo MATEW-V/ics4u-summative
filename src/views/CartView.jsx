@@ -7,7 +7,6 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 function CartView() {
   const { cart, setCart, user } = useStoreContext();
 
-  // Function to handle the checkout process
   const checkout = async () => {
     if (!cart.size) {
       alert("Your cart is empty!");
@@ -23,7 +22,7 @@ function CartView() {
 
       await setDoc(docRef, { cart: updatedCart }, { merge: true });
 
-      setCart(new Map());
+      setCart(new Map()); // Reset the cart after checkout
 
       alert("Thank You for your purchase.");
     } catch (error) {

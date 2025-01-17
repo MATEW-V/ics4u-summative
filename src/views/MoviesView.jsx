@@ -7,14 +7,25 @@ import { auth } from "../firebase";
 
 function MoviesView() {
   const navigate = useNavigate();
-  const { user, setUser } = useStoreContext();
+  const { user, setUser, setCart } = useStoreContext();
 
   function logout() {
-    signOut(auth);
-    navigate("/");
-    setUser(null);
-    console.log("wasd"+user);
-    
+    if (user) {
+      localStorage.removeItem(user.uid);
+      localStorage.clear(); // ask if needed to keep
+    }
+
+    signOut(auth)
+      .then(() => {
+        setUser(null);
+        setCart(Map());
+
+        navigate("/");
+        console.log("Logged out successfully");
+      })
+      .catch((error) => {
+        console.error("Error during logout:", error);
+      });
   }
 
   function cart() {
