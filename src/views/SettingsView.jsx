@@ -100,6 +100,7 @@ function SettingsView() {
             await updatePassword(userCred, newPassword);
             alert("Password updated successfully!");
         } catch (error) {
+            console.log(error);
             console.error("Error updating password:", error);
             setPasswordError("Error updating password.");
         }
