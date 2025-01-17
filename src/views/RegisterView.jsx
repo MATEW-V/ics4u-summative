@@ -13,10 +13,10 @@ function RegisterView() {
   const [lname, setLname] = useState('');
   const [password, setPassword] = useState('');
   const [verifpass, setVerifpass] = useState('');
-  const { setUser, genres, setGenres } = useStoreContext();
+  const { setUser, setGenres } = useStoreContext();
   const [selectedGenres, setSelectedGenres] = useState(new Map());
   const navigate = useNavigate();
-  
+
   const availableGenres = [
     { id: "28", name: "Action" },
     { id: "12", name: "Adventure" },
@@ -92,20 +92,32 @@ function RegisterView() {
       alert("Please select at least 10 genres.");
       return;
     }
+
     try {
       // Register user via Google Auth
-      const user = (await signInWithPopup(auth, new GoogleAuthProvider())).user;
-      setUser(user);  // Set the user in context
+      const userCredential = await signInWithPopup(auth, new GoogleAuthProvider());
+      const user = userCredential.user;
+
+      // Set the user in context
+      setUser(user); 
       setGenres(selectedGenres);  // Set genres in context
 
-      // Store genres in Firestore
+      // Get first and last name from the user object or use empty strings if unavailable
+      const firstName = fname || (user.displayName && user.displayName.split(" ")[0]) || '';
+      const lastName = lname || (user.displayName && user.displayName.split(" ")[1]) || '';
+
+      // Store genres and names in Firestore
       const selectgenrejs = Object.fromEntries(selectedGenres);
       const docRef = doc(firestore, "users", user.uid);
-      await setDoc(docRef, { genres: selectgenrejs });
-      
+      await setDoc(docRef, { 
+        firstName: firstName, 
+        lastName: lastName, 
+        genres: selectgenrejs 
+      });
+
       navigate('/movies/genre');  // Navigate to the next page
-    } catch (error){
-      alert("Error creating user with email and password!");
+    } catch (error) {
+      alert("Error creating user with Google!");
       console.log(error);
     }
   };
