@@ -3,7 +3,7 @@ import { useStoreContext } from "../context";
 import style13 from "./SettingsView.module.css";
 import { useNavigate } from 'react-router-dom';
 import { getAuth, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { firestore } from "../firebase";
 
 const availableGenres = [
@@ -32,17 +32,15 @@ function SettingsView() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [selectedGenres, setSelectedGenres] = useState(new Map());
     const [passwordError, setPasswordError] = useState('');
-    const [cart, setCart] = useState([]); // State to hold the cart data
+    const [cart, setCart] = useState([]); 
     const navigate = useNavigate();
 
-    // Fetch the user's data and cart from Firestore
     useEffect(() => {
         const initGenres = new Map();
         genres.forEach((value, key) => {
             initGenres.set(key, value);
         });
         setSelectedGenres(initGenres);
-
         const fetchUserData = async () => {
             if (user) {
                 try {
@@ -54,13 +52,9 @@ function SettingsView() {
                             const userGenres = new Map(Object.entries(data.genres));
                             setSelectedGenres(userGenres); // Set genres selected by the user
                         }
-
-                        // Fetch cart data from Firestore
                         if (data.cart) {
-                            setCart(data.cart); // Set the cart data from Firestore
-                        }
-
-                        // Set first and last name from Firestore if available
+                            setCart(data.cart);
+                        } 
                         if (data.firstName) setNewFname(data.firstName);
                         if (data.lastName) setNewLname(data.lastName);
                     }
@@ -69,11 +63,9 @@ function SettingsView() {
                 }
             }
         };
-
-        fetchUserData(); // Fetch data when component mounts
+        fetchUserData();
     }, [genres, user]);
 
-    // Handle genre checkbox changes (select/deselect)
     const handleGenreChange = async (event) => {
         const genreId = event.target.value;
         const genreName = event.target.name;
@@ -84,19 +76,16 @@ function SettingsView() {
         } else {
             updatedSelectedGenres.delete(genreId); // Remove from selected genres
         }
-
-        setSelectedGenres(updatedSelectedGenres); // Update the selected genres map
+        setSelectedGenres(updatedSelectedGenres); 
     };
 
-    // Handle password change
     const handlePasswordChange = async () => {
+        const auth = getAuth();
+        const userCred = auth.currentUser;
         if (newPassword !== confirmPassword) {
             setPasswordError('Passwords do not match!');
             return;
         }
-
-        const auth = getAuth();
-        const userCred = auth.currentUser;
 
         const credential = EmailAuthProvider.credential(userCred.email, user.password);
         try {
@@ -110,27 +99,22 @@ function SettingsView() {
         }
     };
 
-    // Handle save changes for genres and other settings
     const handleSaveChanges = async () => {
-        // If the user is logged in via Google, skip updating first/last name
+        const updatedGenres = Object.fromEntries(selectedGenres);
         if (user.providerData[0].providerId === "google.com") {
-            setNewFname(fname); // Keep the current first name
-            setNewLname(lname); // Keep the current last name
+            setNewFname(fname); 
+            setNewLname(lname); 
         } else {
-            // Only update names for users who are not authenticated via Google
             setFirst(newFname);
             setLast(newLname);
         }
 
-        // Prepare the genres to save to Firestore
-        const updatedGenres = Object.fromEntries(selectedGenres);
-
         try {
             const userRef = doc(firestore, "users", user.uid);
-            await setDoc(userRef, {
+            await updateDoc(userRef, {
                 genres: updatedGenres, // Save selected genres to Firestore
-                firstName: newFname, // Only update if not Google Auth
-                lastName: newLname, // Only update if not Google Auth
+                firstName: newFname,
+                lastName: newLname,
             }, { merge: true });
             alert("Settings updated successfully!");
             navigate('/movies/genre');
@@ -165,7 +149,6 @@ function SettingsView() {
                         </div>
                     </>
                 )}
-
                 {user.providerData[0].providerId === "password" && (
                     <div className={style13.formGroup}>
                         <label>Edit Password:</label>
@@ -177,7 +160,6 @@ function SettingsView() {
                         />
                     </div>
                 )}
-
                 {user.providerData[0].providerId === "password" && (
                     <div className={style13.formGroup}>
                         <label>Confirm Password:</label>
@@ -190,7 +172,6 @@ function SettingsView() {
                     </div>
                 )}
                 {passwordError && <div className={style13.error}>{passwordError}</div>}
-
                 <div className={style13.genresContainer}>
                     <h3>Choose Your Genres</h3>
                     <div className={style13.checkboxContainer}>
@@ -209,19 +190,15 @@ function SettingsView() {
                         ))}
                     </div>
                 </div>
-
                 <button className={style13.saveButton} onClick={handleSaveChanges}>
                     Save Changes
                 </button>
-
                 {user.providerData[0].providerId === "password" && (
                     <button className={style13.saveButton} onClick={handlePasswordChange}>
                         Update Password
                     </button>
                 )}
             </div>
-
-            {/* Display Cart as Tiles */}
             <div className={style13.cartContainer}>
                 <h3>Previous Purchases:</h3>
                 {cart.length > 0 ? (

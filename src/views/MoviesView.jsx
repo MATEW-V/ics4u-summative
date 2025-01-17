@@ -13,6 +13,7 @@ function MoviesView() {
     if (user) {
       localStorage.removeItem(user.uid);
       localStorage.clear(); // ask if needed to keep
+      console.log("check");
     }
 
     signOut(auth)
