@@ -14,42 +14,67 @@ function GenreLogin() {
   const [selectedGenreId, setSelectedGenreId] = useState(28);
   const [userGenres, setUserGenres] = useState(new Map());
   const [userName, setUserName] = useState(""); // State to store the user's name
+  const [userCart, setUserCart] = useState(new Set()); // State for user's cart in Firestore
   const { cart, user, addToCart, genres } = useStoreContext();
 
+  function logout() {
+    if (user) {
+      // Optionally clear the cart from localStorage on logout
+      // localStorage.removeItem(user.uid); // Uncomment if you want to clear the cart on logout
+      console.log("User data removed from localStorage");
+    }
+
+    signOut(auth)
+      .then(() => {
+        setUser(null);          // Clear user context
+        setCart(new Map());     // Clear cart context
+
+        navigate("/");         // Redirect to home page
+        console.log("Logged out successfully");
+      })
+      .catch((error) => {
+        console.error("Error during logout:", error);
+      });
+  }
   const cartAdd = (movie) => {
-    if (cart.has(movie.id)) {
-      alert("This movie is already in your cart.");
+    if (userCart.has(movie.id)) {
+      alert("This movie is already in your Firestore cart.");
     } else {
-      addToCart(movie);
+      addToCart(movie); // Update local state if movie is not in Firestore cart
     }
   };
 
-  const readGenre = async () => {
+  const readUserData = async () => {
     try {
       const docRef = doc(firestore, "users", user.uid);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         const data = docSnap.data();
         console.log("User data from Firestore:", data);
+
+        // Update genres
         if (Array.isArray(data.genres)) {
           setUserGenres(new Map(data.genres.map(genre => [genre.id, genre.name])));
         } else if (data.genres instanceof Object) {
           setUserGenres(new Map(Object.entries(data.genres)));
-        } else {
-          console.error("Invalid genre data format");
         }
 
-        // Set the user's name based on whether they registered via email or Google
+        // Update the user's name
         if (data.firstName && data.lastName) {
           setUserName(`${data.firstName} ${data.lastName}`);
         } else if (user.displayName) {
           setUserName(user.displayName);
         }
+
+        // Update the user's cart from Firestore (as a Set for fast lookup)
+        if (data.cart) {
+          setUserCart(new Set(data.cart.map((movie) => movie.id))); // Assuming `data.cart` is an array of movie objects
+        }
       } else {
         console.log("No such document!");
       }
     } catch (error) {
-      console.error("Error fetching user genres from Firestore: ", error);
+      console.error("Error fetching user data from Firestore: ", error);
     }
   };
 
@@ -65,7 +90,7 @@ function GenreLogin() {
 
     fetchMovies();
     if (user && user.uid) {
-      readGenre(); 
+      readUserData(); // Load user data including cart
     }
   }, [selectedGenreId, user]);
 
@@ -128,11 +153,18 @@ function GenreLogin() {
 
               <div className={style6['button-container']}>
                 <Link to={`/movies/${movie.id}`} className={style6.dbutton}>Details</Link>
+                
                 <div
                   onClick={() => cartAdd(movie)}
                   className={style6.buybut}
+                  style={{
+                    opacity: userCart.has(movie.id) ? 0.5 : (cart.has(movie.id) ? 0.5 : 1), 
+                    pointerEvents: userCart.has(movie.id) ? 'none' : (cart.has(movie.id) ? 'none' : 'auto')
+                  }}
                 >
-                  {cart.has(movie.id) ? "Added" : "Buy"}
+                  {userCart.has(movie.id)
+                    ? "Bought"
+                    : (cart.has(movie.id) ? "Added" : "Buy")}
                 </div>
               </div>
             </div>

@@ -28,10 +28,12 @@ function SettingsView() {
     const { fname, lname, genres, setFirst, setLast, user } = useStoreContext();
     const [newFname, setNewFname] = useState(fname);
     const [newLname, setNewLname] = useState(lname);
+    const [currentPassword, setCurrentPassword] = useState(''); // For current password input
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [selectedGenres, setSelectedGenres] = useState(new Map());
     const [passwordError, setPasswordError] = useState('');
+    const [genreError, setGenreError] = useState('');
     const [cart, setCart] = useState([]); 
     const navigate = useNavigate();
 
@@ -82,24 +84,41 @@ function SettingsView() {
     const handlePasswordChange = async () => {
         const auth = getAuth();
         const userCred = auth.currentUser;
+
         if (newPassword !== confirmPassword) {
             setPasswordError('Passwords do not match!');
             return;
         }
 
-        const credential = EmailAuthProvider.credential(userCred.email, user.password);
+        if (!currentPassword) {
+            setPasswordError('Please enter your current password.');
+            return;
+        }
+
+        const credential = EmailAuthProvider.credential(userCred.email, currentPassword); // Use current password for re-authentication
+
         try {
             await reauthenticateWithCredential(userCred, credential);
             await updatePassword(userCred, newPassword);
             alert("Password updated successfully!");
+            setCurrentPassword('');
+            setNewPassword('');
+            setConfirmPassword('');
         } catch (error) {
-            console.log(error);
             console.error("Error updating password:", error);
-            setPasswordError("Error updating password.");
+            setPasswordError("Error updating password. Please check your current password.");
         }
     };
 
     const handleSaveChanges = async () => {
+        // Check if at least 10 genres are selected
+        if (selectedGenres.size < 10) {
+            setGenreError("You must select at least 10 genres.");
+            return;
+        } else {
+            setGenreError(""); // Clear error if condition is met
+        }
+
         const updatedGenres = Object.fromEntries(selectedGenres);
         if (user.providerData[0].providerId === "google.com") {
             setNewFname(fname); 
@@ -149,29 +168,44 @@ function SettingsView() {
                         </div>
                     </>
                 )}
+                
+                {/* Edit Password Section - Only for email users */}
                 {user.providerData[0].providerId === "password" && (
-                    <div className={style13.formGroup}>
-                        <label>Edit Password:</label>
-                        <input
-                            type="password"
-                            placeholder="Enter new password"
-                            value={newPassword}
-                            onChange={(e) => setNewPassword(e.target.value)}
-                        />
-                    </div>
+                    <>
+                        <div className={style13.formGroup}>
+                            <label>Current Password:</label>
+                            <input
+                                type="password"
+                                placeholder="Enter current password"
+                                value={currentPassword}
+                                onChange={(e) => setCurrentPassword(e.target.value)}
+                            />
+                        </div>
+                        <div className={style13.formGroup}>
+                            <label>New Password:</label>
+                            <input
+                                type="password"
+                                placeholder="Enter new password"
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                            />
+                        </div>
+                        <div className={style13.formGroup}>
+                            <label>Confirm New Password:</label>
+                            <input
+                                type="password"
+                                placeholder="Confirm new password"
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                            />
+                        </div>
+                    </>
                 )}
-                {user.providerData[0].providerId === "password" && (
-                    <div className={style13.formGroup}>
-                        <label>Confirm Password:</label>
-                        <input
-                            type="password"
-                            placeholder="Confirm new password"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                        />
-                    </div>
-                )}
+
+                {/* Display password errors */}
                 {passwordError && <div className={style13.error}>{passwordError}</div>}
+
+                {/* Genres Selection */}
                 <div className={style13.genresContainer}>
                     <h3>Choose Your Genres</h3>
                     <div className={style13.checkboxContainer}>
@@ -189,16 +223,21 @@ function SettingsView() {
                             </div>
                         ))}
                     </div>
+                    {genreError && <div className={style13.error}>{genreError}</div>}
                 </div>
+
                 <button className={style13.saveButton} onClick={handleSaveChanges}>
                     Save Changes
                 </button>
+
                 {user.providerData[0].providerId === "password" && (
                     <button className={style13.saveButton} onClick={handlePasswordChange}>
                         Update Password
                     </button>
                 )}
             </div>
+
+            {/* Cart Display */}
             <div className={style13.cartContainer}>
                 <h3>Previous Purchases:</h3>
                 {cart.length > 0 ? (

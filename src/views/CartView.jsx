@@ -41,7 +41,7 @@ function CartView() {
           <ul className={style12.navigation}>
             <li><Link to={`/`} className={style12.link}>HOME</Link></li>
             <li><a href="#">ABOUT</a></li>
-            <li><a href="#">SETTINGS</a></li>
+            <li><a><Link to={`/settings`}>SETTINGS</Link></a></li>
             <li>
               <div className={style12.search}>
                 <div className={style12.searchbox}>

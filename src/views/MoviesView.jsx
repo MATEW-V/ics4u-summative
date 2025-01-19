@@ -4,24 +4,25 @@ import style9 from "./MoviesView.module.css";
 import { useStoreContext } from "../context";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
+import { useEffect } from "react";
 
 function MoviesView() {
   const navigate = useNavigate();
-  const { user, setUser, setCart } = useStoreContext();
+  const { user, setUser, setCart, cart: contextCart } = useStoreContext();  // Destructure 'cart' as 'contextCart'
 
   function logout() {
     if (user) {
-      localStorage.removeItem(user.uid);
-      localStorage.clear(); // ask if needed to keep
-      console.log("check");
+      // Optionally clear the cart from localStorage on logout
+      // localStorage.removeItem(user.uid); // Uncomment if you want to clear the cart on logout
+      console.log("User data removed from localStorage");
     }
 
     signOut(auth)
       .then(() => {
-        setUser(null);
-        setCart(Map());
+        setUser(null);          // Clear user context
+        setCart(new Map());     // Clear cart context
 
-        navigate("/");
+        navigate("/");         // Redirect to home page
         console.log("Logged out successfully");
       })
       .catch((error) => {
@@ -29,9 +30,21 @@ function MoviesView() {
       });
   }
 
+  // Navigate to Cart page
   function cart() {
-    navigate("/cart")
+    navigate("/cart");
   }
+
+  // Fetch the user's cart from localStorage on login
+  useEffect(() => {
+    if (user) {
+      const savedCart = localStorage.getItem(user.uid);
+      if (savedCart) {
+        const cartData = new Map(JSON.parse(savedCart));
+        setCart(cartData); // Set the context cart with saved data
+      }
+    }
+  }, [user, setCart]);
 
   return (
     <div className={style9.appcontainer}>
