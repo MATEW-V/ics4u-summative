@@ -12,19 +12,22 @@ function CartView() {
       alert("Your cart is empty!");
       return;
     }
-
+  
     try {
       const docRef = doc(firestore, "users", user.uid);
       const userDoc = await getDoc(docRef);
       const userData = userDoc.data();
       const userCart = userData.cart || []; 
       const updatedCart = [...userCart, ...Array.from(cart.values())]; 
-
+  
+      // Update Firestore with the merged cart
       await setDoc(docRef, { cart: updatedCart }, { merge: true });
-
-      setCart(new Map()); // Reset the cart after checkout
-
-      alert("Thank You for your purchase.");
+  
+      // Clear the local cart and local storage
+      setCart(new Map()); 
+      localStorage.removeItem(user.uid); // Assuming local storage uses user.uid as the key
+  
+      alert("Thank you for your purchase!");
     } catch (error) {
       console.error("Error during checkout:", error);
       alert("There was an error during checkout.");
