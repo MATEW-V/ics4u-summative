@@ -8,21 +8,20 @@ import { useEffect } from "react";
 
 function MoviesView() {
   const navigate = useNavigate();
-  const { user, setUser, setCart, cart: contextCart } = useStoreContext();  // Destructure 'cart' as 'contextCart'
+  const { user, setUser, setCart, cart: contextCart } = useStoreContext();
 
   function logout() {
     if (user) {
-      // Optionally clear the cart from localStorage on logout
-      // localStorage.removeItem(user.uid); // Uncomment if you want to clear the cart on logout
+      localStorage.removeItem(user.uid);  //ASK IF NEEEDED WILL CLEAR CART ON LOGOUT
       console.log("User data removed from localStorage");
     }
 
     signOut(auth)
       .then(() => {
-        setUser(null);          // Clear user context
-        setCart(new Map());     // Clear cart context
+        setUser(null);
+        setCart(new Map());
 
-        navigate("/");         // Redirect to home page
+        navigate("/")
         console.log("Logged out successfully");
       })
       .catch((error) => {
@@ -30,18 +29,16 @@ function MoviesView() {
       });
   }
 
-  // Navigate to Cart page
   function cart() {
     navigate("/cart");
   }
 
-  // Fetch the user's cart from localStorage on login
   useEffect(() => {
     if (user) {
       const savedCart = localStorage.getItem(user.uid);
       if (savedCart) {
         const cartData = new Map(JSON.parse(savedCart));
-        setCart(cartData); // Set the context cart with saved data
+        setCart(cartData);
       }
     }
   }, [user, setCart]);

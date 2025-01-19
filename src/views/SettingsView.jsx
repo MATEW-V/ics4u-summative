@@ -28,7 +28,7 @@ function SettingsView() {
     const { fname, lname, genres, setFirst, setLast, user } = useStoreContext();
     const [newFname, setNewFname] = useState(fname);
     const [newLname, setNewLname] = useState(lname);
-    const [currentPassword, setCurrentPassword] = useState(''); // For current password input
+    const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [selectedGenres, setSelectedGenres] = useState(new Map());
@@ -52,7 +52,7 @@ function SettingsView() {
                         const data = docSnap.data();
                         if (data.genres) {
                             const userGenres = new Map(Object.entries(data.genres));
-                            setSelectedGenres(userGenres); // Set genres selected by the user
+                            setSelectedGenres(userGenres); 
                         }
                         if (data.cart) {
                             setCart(data.cart);
@@ -74,9 +74,9 @@ function SettingsView() {
         const updatedSelectedGenres = new Map(selectedGenres);
 
         if (event.target.checked) {
-            updatedSelectedGenres.set(genreId, genreName); // Add to selected genres
+            updatedSelectedGenres.set(genreId, genreName); 
         } else {
-            updatedSelectedGenres.delete(genreId); // Remove from selected genres
+            updatedSelectedGenres.delete(genreId); 
         }
         setSelectedGenres(updatedSelectedGenres); 
     };
